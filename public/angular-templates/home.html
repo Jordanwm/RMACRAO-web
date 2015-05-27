@@ -1,0 +1,285 @@
+<!-- ***************************DAYS*************************** -->
+<div class="row">
+	<div class="col-md-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="text-center panel-title">Select A Day</h3>
+			</div>
+			<div class="list-group">
+				<a class="list-group-item" ng-repeat="day in days" ng-click="loadSessions($index)" ng-class="{active: selectedDay === day}">
+					<i ng-click="editDay(day)" class="glyphicon glyphicon-edit"></i>
+					{{day.day}}
+				</a>
+				<div class="list-group-item">
+					<div ng-show="dayEdit">
+						<form ng-submit="updateDay()">
+							<div class="alert alert-danger" ng-show="dayError" ng-bind="dayError"></div>
+							<p><strong>Edit {{dayEdit.day}}</strong></p>
+							<div class="form-group">
+								<div class="input-group">
+									<input class="form-control" type="text" ng-model="dayEdit.day">
+									<div class="input-group-btn">
+										<button type="submit" class="btn btn-primary">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+						<div>
+							<button ng-click="cancelDayEdit()" class="btn btn-danger">Cancel</button>
+							<button ng-click="deleteDay()" class="btn btn-danger pull-right">Delete</button>
+						</div>
+					</div>
+					<form ng-hide="dayEdit" ng-submit="addDay()">
+						<div class="alert alert-danger" ng-show="dayError" ng-bind="dayError"></div>
+						<p><strong>Add New Day</strong></p>
+						<div class="input-group">
+							<input class="form-control" type="text" ng-model="newDay" placeholder="Saturday">
+							<div class="input-group-btn">
+								<button type="submit" class="btn btn-primary">Add</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- **********************SESSIONS******************** -->
+	<div class="col-md-3">
+		<div class="panel panel-default" ng-show="sessions">
+			<div class="panel-heading">
+				<h3 class="text-center panel-title">Select A Session</h3>
+			</div>
+			<div class="list-group">
+				<a class="list-group-item" ng-repeat="session in sessions" ng-click="loadEvents($index)" ng-class="{active: selectedSession === session}">
+					<i ng-click="editSession(session)" class="glyphicon glyphicon-edit"></i>
+					{{session.time}} | {{session.name}}
+				</a>
+				<div class="list-group-item">
+					<div ng-show="sessionEdit">
+						<form ng-submit="updateSession()">
+							<div class="alert alert-danger" ng-show="sessionError" ng-bind="sessionError"></div>
+							<p><strong>Edit {{sessionEdit.name}}</strong></p>
+							<div class="form-group">
+								<input class="form-control" type="text" ng-model="sessionEdit.name">
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" ng-model="sessionEdit.time">
+							</div>
+							<div class="form-group">
+								<button type="submit" class="btn btn-primary">Update</button>
+							</div>
+						</form>
+						<div>
+							<button ng-click="cancelSessionEdit()" class="btn btn-danger">Cancel</button>
+							<button ng-click="deleteSession()" class="btn btn-danger pull-right">Delete</button>
+						</div>
+					</div>	
+					<form ng-hide="sessionEdit" ng-submit="addSession()">
+						<div class="alert alert-danger" ng-show="sessionError" ng-bind="sessionError"></div>
+						<p><strong>Add New Session</strong></p>
+							<div class="form-group">
+								<input class="form-control" type="text" ng-model="newSessionName" placeholder="Name">
+							</div>
+							<div class="form-group">
+								<input class="form-control" type="text" ng-model="newSessionTime" placeholder="Time">
+							</div>
+							<div class="form-group">
+								<button type="submit" class="btn btn-primary">Add</button>
+							</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- *****************************EVENTS********************************* -->
+	<div class="col-md-3" ng-show="events">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="text-center panel-title">Select An Event
+					<button class="btn btn-default btn-xs pull-right" ng-click="openEventAdder()"><i class="glyphicon glyphicon-plus" ></i></button>
+				</h3>
+			</div>
+			<div class="list-group">
+				<a class="list-group-item" ng-repeat="event in events" ng-click="showEvent(event)" ng-class="{active: selectedEvent === event}">
+					{{event.title}}
+				</a>
+			</div>
+		</div>
+	</div>
+	<!-- **********************EVENT FORM*************** -->
+	<div class="col-md-3" >
+		<div class="panel panel-default" ng-show="events && selectedEvent && !eventEdit">
+			<!-- SHOW PANEL -->
+			<div class="panel-heading">
+				<h3 class="panel-title">Details: <span class="btn btn-default btn-xs pull-right" ng-click="editEvent(selectedEvent)"><i class="glyphicon glyphicon-edit"></i></span></h3>
+			</div>
+			<div class="panel-body" >
+				<h4>Title:</h4><h6>{{selectedEvent.title}}</h6>
+				<h4>Session ID:</h4><h6>{{selectedEvent.sid}}</h6>
+				<h4>Description:</h4><h6 ng-bind="selectedEvent.description" style="white-space: pre-wrap;"></h6>
+				<h4>Sponser:</h4><h6>{{selectedEvent.sponser}}</h6>
+				<h4>Presenters:</h4>
+					<ul>
+						<li ng-repeat="presenter in selectedEvent.presenters">
+							<h6>{{presenter.name}}, {{presenter.school}}</h6>
+						</li>
+					</ul>
+				<h4>Facilitators:</h4>
+				<ul>
+					<li ng-repeat="facilitator in selectedEvent.facilitators">
+						<h6>{{facilitator.name}}, {{facilitator.school}}</h6>
+					</li>
+				</ul>
+				<h4>Location:</h4><h6>{{selectedEvent.location}}</h6>
+			</div>
+		</div>
+			<!-- EDIT PANEL -->
+		<div class="panel panel-default" ng-show="events && (eventEdit || newEvent)">
+			<div class="panel-body" ng-show="eventEdit">
+				<form ng-submit="updateEvent()">
+					<div class="alert alert-danger" ng-show="eventError" ng-bind="eventError"></div>
+					<p><strong>Edit {{eventEdit.name}}</strong></p>
+					<div class="form-group">
+						<input class="form-control" type="text" ng-model="eventEdit.title" placeholder="Title">
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" ng-model="eventEdit.sid" placeholder="Session ID">
+					</div>
+					<div class="form-group">
+						<textarea placeholder="Description..." cols="30" rows="10" ng-model="eventEdit.description" class="form-control"></textarea>
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="eventEdit.sponser" placeholder="Sponser">
+					</div>
+					<div>
+						<p>Presenters: 
+							<span class="btn btn-primary btn-xs pull-right" ng-click="openPresenter()"><i class="glyphicon glyphicon-plus"></i></span>
+						</p>
+						<ul ng-show="eventEdit.presenters.length > 0">
+							<li ng-repeat="presenter in eventEdit.presenters">
+								<span class="h6">{{presenter.name}}, {{presenter.school}}</span>
+								<span class="btn btn-danger btn-xs" ng-click="removePresenter(eventEdit, presenter)"><i class="glyphicon glyphicon-minus"></i></span>
+							</li>
+						</ul>
+						<p>Facilitators: 
+							<span class="btn btn-primary btn-xs pull-right" ng-click="openFacilitator()"><i class="glyphicon glyphicon-plus"></i></span>
+						</p>
+						<ul ng-show="eventEdit.facilitators.length > 0">
+							<li ng-repeat="facilitator in eventEdit.facilitators">
+								<span class="h6">{{facilitator.name}}, {{facilitator.school}}</span>
+								<span class="btn btn-danger btn-xs" ng-click="removeFacilitator(eventEdit, facilitator)"><i class="glyphicon glyphicon-minus"></i></span>
+							</li>
+						</ul>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" ng-model="eventEdit.location" placeholder="Location">
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Update</button>
+					</div>
+				</form>
+				<form ng-show="eventEdit && showPresenters" ng-submit="addPresenter(eventEdit)">
+					<div class="alert alert-danger" ng-show="formError" ng-bind="formError"></div>
+					<p><strong>Add Presenter</strong></p>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newPresenterName" placeholder="Name">
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newPresenterSchool" placeholder="School">
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Add</button>
+					</div>
+				</form>
+				<form ng-show="eventEdit && showFacilitators" ng-submit="addFacilitator(eventEdit)">
+					<div class="alert alert-danger" ng-show="formError" ng-bind="formError"></div>
+					<p><strong>Add Facilitator</strong></p>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newFacilitatorName" placeholder="Name">
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newFacilitatorSchool" placeholder="School">
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Add</button>
+					</div>
+				</form>
+				<div>
+					<button ng-click="cancelEventEdit()" class="btn btn-danger">Cancel</button>
+					<button ng-click="deleteEvent()" class="btn btn-danger pull-right">Delete</button>
+				</div>
+			</div>
+			<!-- NEW EVENT PANEL -->
+			<div class="panel-body" ng-show="newEvent">
+				<form ng-submit="addEvent()">
+					<div class="alert alert-danger" ng-show="eventError" ng-bind="eventError"></div>
+					<p><strong>Add New Event</strong></p>
+					<div class="form-group">
+						<input class="form-control" type="text" ng-model="newEvent.title" placeholder="Title">
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" ng-model="newEvent.sid" placeholder="Session ID">
+					</div>
+					<div class="form-group">
+						<textarea placeholder="Description..." cols="30" rows="10" ng-model="newEvent.description" class="form-control"></textarea>
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newEvent.sponser" placeholder="Sponser">
+					</div>
+					<div>
+						<p>Presenters: 
+							<span class="btn btn-primary btn-xs pull-right" ng-click="openPresenter()"><i class="glyphicon glyphicon-plus"></i></span>
+						</p>
+						<ul ng-show="newEvent.presenters.length > 0">
+							<li ng-repeat="presenter in newEvent.presenters">
+								<span class="h6">{{presenter.name}}, {{presenter.school}}</span>
+								<span class="btn btn-danger btn-xs" ng-click="removePresenter(newEvent, presenter)"><i class="glyphicon glyphicon-minus"></i></span>
+							</li>
+						</ul>
+						<p>Facilitators: 
+							<span class="btn btn-primary btn-xs pull-right" ng-click="openFacilitator()"><i class="glyphicon glyphicon-plus"></i></span>
+						</p>
+						<ul ng-show="newEvent.facilitators.length > 0">
+							<li ng-repeat="facilitator in newEvent.facilitators">
+								<span class="h6">{{facilitator.name}}, {{facilitator.school}}</span>
+								<span class="btn btn-danger btn-xs" ng-click="removeFacilitator(newEvent, facilitator)"><i class="glyphicon glyphicon-minus"></i></span>
+							</li>
+						</ul>
+					</div>
+					<div class="form-group">
+						<input class="form-control" type="text" ng-model="newEvent.location" placeholder="Location">
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Add</button>
+					</div>
+				</form>
+				<form ng-show="!eventEdit && showPresenters" ng-submit="addPresenter(newEvent)">
+					<div class="alert alert-danger" ng-show="formError" ng-bind="formError"></div>
+					<p><strong>Add Presenter</strong></p>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newPresenterName" placeholder="Name">
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newPresenterSchool" placeholder="School">
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Add</button>
+					</div>
+				</form>
+				<form ng-show="!eventEdit && showFacilitators" ng-submit="addFacilitator(newEvent)">
+					<div class="alert alert-danger" ng-show="formError" ng-bind="formError"></div>
+					<p><strong>Add Facilitator</strong></p>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newFacilitatorName" placeholder="Name">
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control" ng-model="newFacilitatorSchool" placeholder="School">
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">Add</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
